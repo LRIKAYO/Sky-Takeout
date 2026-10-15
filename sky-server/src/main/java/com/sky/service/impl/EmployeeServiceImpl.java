@@ -20,6 +20,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.sky.dto.EmployeePageQueryDTO;
+import com.sky.result.PageResult;
+import java.util.List;
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
 
@@ -88,7 +93,50 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         employeeMapper.insert(employee);
 
-
     }
 
+    @Override
+    public PageResult pageQuery(EmployeePageQueryDTO employeePageQueryDTO) {
+        //开始分页查询
+        PageHelper.startPage(
+            employeePageQueryDTO.getPage(),
+            employeePageQueryDTO.getPageSize()
+        );
+
+        Page<Employee> page = employeeMapper.pageQuery(employeePageQueryDTO);
+
+        long total = page.getTotal();
+        List<Employee> records = page.getResult();
+
+        return new PageResult(total, records);
+    }
+
+    @Override
+    public void startOrStop(Integer status, Long id) {
+        Employee employee = Employee.builder()
+                            .status(status)
+                            .id(id)
+                            .build();
+
+        employeeMapper.update(employee);
+    }
+
+    @Override
+    public Employee getById(Long id) {
+        Employee employee = employeeMapper.getById(id);
+        employee.setPassword("****");
+        return employee;
+    }
+
+    @Override
+    public void update(EmployeeDTO employeeDTO) {
+        Employee employee = new Employee();
+        BeanUtils.copyProperties(employeeDTO, employee);
+
+        employee.setUpdateTime(LocalDateTime.now());
+        employee.setUpdateUser(BaseContext.getCurrentId());
+
+        employeeMapper.update(employee);
+
+    }
 }
