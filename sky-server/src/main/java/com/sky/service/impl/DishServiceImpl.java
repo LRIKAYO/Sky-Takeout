@@ -8,6 +8,7 @@ import com.sky.dto.DishDTO;
 import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
 import com.sky.entity.DishFlavor;
+import com.sky.exception.BaseException;
 import com.sky.exception.DeletionNotAllowedException;
 import com.sky.mapper.DishFlavorMapper;
 import com.sky.mapper.DishMapper;
@@ -95,4 +96,45 @@ public class DishServiceImpl implements DishService {
         dishFlavorMapper.deleteByDishIds(ids);
     }
 
+    @Override
+    public DishVO getByIdWithFlavor(Long id) {
+        if (id == null || id <= 0) {
+            throw new BaseException("请提供有效的菜品 ID");
+        }
+        Dish dish = dishMapper.getById(id);
+        if (dish == null) {
+            throw new BaseException("菜品不存在");
+        }
+        List<DishFlavor> flavors = dishFlavorMapper.getByDishId(id);
+        DishVO dishVO = new DishVO();
+        BeanUtils.copyProperties(dish, dishVO);
+        dishVO.setFlavors(flavors);
+        return dishVO;
+    }
+
+    @Override
+    @Transactional
+    public void updateWithFlavor(DishDTO dishDTO) {
+        if (dishDTO == null || dishDTO.getId() == null || dishDTO.getId() <= 0) {
+            throw new BaseException("请提供有效的菜品 ID");
+        }
+        Long dishId = dishDTO.getId();
+        if (dishMapper.getById(dishId) == null) {
+            throw new BaseException("菜品不存在");
+        }
+
+        Dish dish = new Dish();
+        BeanUtils.copyProperties(dishDTO, dish);
+        dishMapper.update(dish);
+
+        // 无论新口味是否为空，都先删除原有口味。
+        dishFlavorMapper.deleteByDishIds(List.of(dishId));
+        List<DishFlavor> flavors = dishDTO.getFlavors();
+        if (flavors != null && !flavors.isEmpty()) {
+            for (DishFlavor flavor : flavors) {
+                flavor.setDishId(dishId);
+            }
+            dishFlavorMapper.insertBatch(flavors);
+        }
+    }
 }
