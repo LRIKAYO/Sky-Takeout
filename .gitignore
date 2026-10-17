@@ -2,8 +2,9 @@
 .idea
 *.iml
 *.class
-*Test.java
-**/test/
 /sky-server/src/main/resources/application-dev.yml
+
+/.env.local
+/uploads/
 
 /sky-server/src/main/resources/application-dev.yml

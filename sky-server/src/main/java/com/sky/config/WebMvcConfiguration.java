@@ -3,6 +3,7 @@ package com.sky.config;
 import com.sky.interceptor.JwtTokenAdminInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -18,6 +19,7 @@ import springfox.documentation.spring.web.plugins.Docket;
 import com.sky.json.JacksonObjectMapper;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 
+import java.nio.file.Paths;
 import java.util.List;
 /**
  * 配置类，注册web层相关组件
@@ -28,6 +30,12 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 
     @Autowired
     private JwtTokenAdminInterceptor jwtTokenAdminInterceptor;
+
+    @Value("${sky.upload.mode}")
+    private String uploadMode;
+
+    @Value("${sky.upload.local-dir}")
+    private String localDir;
 
     /**
      * 注册自定义拦截器
@@ -68,6 +76,12 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
     protected void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/doc.html").addResourceLocations("classpath:/META-INF/resources/");
         registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
+        if ("local".equalsIgnoreCase(uploadMode)) {
+            // 上传需要管理员登录；菜品图片通过独立的静态资源地址读取。
+            String location = Paths.get(localDir).toAbsolutePath().normalize().toUri().toString();
+            registry.addResourceHandler("/uploads/**")
+                    .addResourceLocations(location.endsWith("/") ? location : location + "/");
+        }
     }
 
     /*
