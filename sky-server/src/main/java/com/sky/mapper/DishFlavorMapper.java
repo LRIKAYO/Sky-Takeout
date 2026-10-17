@@ -10,4 +10,6 @@ import java.util.List;
 public interface DishFlavorMapper {
 
     void insertBatch(@Param("flavors") List<DishFlavor> flavors);
+
+    void deleteByDishIds(@Param("dishIds") List<Long> dishIds);
 }
