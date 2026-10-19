@@ -137,4 +137,14 @@ public class DishServiceImpl implements DishService {
             dishFlavorMapper.insertBatch(flavors);
         }
     }
+
+    @Override
+    public List<Dish> list(Long categoryId) {
+        if (categoryId == null || categoryId <= 0) {
+            throw new BaseException("请提供有效的菜品分类 ID");
+        }
+        Dish query = Dish.builder().categoryId(categoryId)
+                .status(StatusConstant.ENABLE).build();
+        return dishMapper.list(query);
+    }
 }
