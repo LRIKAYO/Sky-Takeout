@@ -6,6 +6,14 @@ spring:
     active: dev
   main:
     allow-circular-references: true
+  redis:
+    host: ${SKY_REDIS_HOST:127.0.0.1}
+    port: ${SKY_REDIS_PORT:6379}
+    username: ${SKY_REDIS_USERNAME:root}
+    password: ${SKY_REDIS_PASSWORD}
+    database: ${SKY_REDIS_DATABASE:10}
+    connect-timeout: 3s
+    timeout: 3s
   servlet:
     multipart:
       max-file-size: 2MB
