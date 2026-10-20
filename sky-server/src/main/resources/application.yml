@@ -49,6 +49,13 @@ sky:
     admin-ttl: 7200000
     # 设置前端传递过来的令牌名称
     admin-token-name: token
+    user-secret-key: ${SKY_JWT_USER_SECRET_KEY}
+    user-ttl: 7200000
+    user-token-name: authentication
+
+  wechat:
+    appid: ${SKY_WECHAT_APPID:}
+    secret: ${SKY_WECHAT_SECRET:}
 
   upload:
     # 学习环境先使用本地存储；接回阿里云时设置 SKY_UPLOAD_MODE=oss

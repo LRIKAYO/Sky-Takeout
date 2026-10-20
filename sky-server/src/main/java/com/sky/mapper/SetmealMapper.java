@@ -1,5 +1,6 @@
 package com.sky.mapper;
 
+import com.sky.vo.DishItemVO;
 import com.github.pagehelper.Page;
 import com.sky.annotation.AutoFill;
 import com.sky.dto.SetmealPageQueryDTO;
@@ -31,4 +32,12 @@ public interface SetmealMapper {
     void update(Setmeal setmeal);
 
     void deleteByIds(@Param("ids") List<Long> ids);
+
+    // Day06 新增。
+    List<Setmeal> list(Setmeal setmeal);
+
+    @Select("select sd.name, sd.copies, d.image, d.description "
+            + "from setmeal_dish sd left join dish d on sd.dish_id = d.id "
+            + "where sd.setmeal_id = #{setmealId} order by sd.id")
+    List<DishItemVO> getDishItemBySetmealId(@Param("setmealId") Long setmealId);
 }

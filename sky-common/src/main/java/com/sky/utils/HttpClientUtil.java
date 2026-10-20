@@ -33,44 +33,27 @@ public class HttpClientUtil {
      * @param paramMap
      * @return
      */
-    public static String doGet(String url,Map<String,String> paramMap){
-        // 创建Httpclient对象
-        CloseableHttpClient httpClient = HttpClients.createDefault();
-
-        String result = "";
-        CloseableHttpResponse response = null;
-
-        try{
+    public static String doGet(String url, Map<String, String> paramMap) {
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
             URIBuilder builder = new URIBuilder(url);
-            if(paramMap != null){
-                for (String key : paramMap.keySet()) {
-                    builder.addParameter(key,paramMap.get(key));
+            if (paramMap != null) {
+                for (Map.Entry<String, String> param : paramMap.entrySet()) {
+                    builder.addParameter(param.getKey(), param.getValue());
                 }
             }
-            URI uri = builder.build();
-
-            //创建GET请求
-            HttpGet httpGet = new HttpGet(uri);
-
-            //发送请求
-            response = httpClient.execute(httpGet);
-
-            //判断响应状态
-            if(response.getStatusLine().getStatusCode() == 200){
-                result = EntityUtils.toString(response.getEntity(),"UTF-8");
+            HttpGet request = new HttpGet(builder.build());
+            request.setConfig(builderRequestConfig());
+            try (CloseableHttpResponse response = client.execute(request)) {
+                if (response.getStatusLine().getStatusCode() != 200
+                        || response.getEntity() == null) {
+                    throw new IllegalStateException("HTTP GET 返回失败响应");
+                }
+                return EntityUtils.toString(response.getEntity(), "UTF-8");
             }
-        }catch (Exception e){
-            e.printStackTrace();
-        }finally {
-            try {
-                response.close();
-                httpClient.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        } catch (Exception ex) {
+            // 不包含请求 URL，避免 AppSecret 出现在异常文本中。
+            throw new IllegalStateException("HTTP GET 请求失败");
         }
-
-        return result;
     }
 
     /**

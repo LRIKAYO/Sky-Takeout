@@ -1,5 +1,6 @@
 package com.sky.service.impl;
 
+import java.util.ArrayList;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
@@ -146,5 +147,18 @@ public class DishServiceImpl implements DishService {
         Dish query = Dish.builder().categoryId(categoryId)
                 .status(StatusConstant.ENABLE).build();
         return dishMapper.list(query);
+    }
+
+    // Day06 新增：保留此前管理端的 list(Long categoryId)。
+    @Override
+    public List<DishVO> listWithFlavor(Dish dish) {
+        List<DishVO> result = new ArrayList<>();
+        for (Dish item : dishMapper.list(dish)) {
+            DishVO vo = new DishVO();
+            BeanUtils.copyProperties(item, vo);
+            vo.setFlavors(dishFlavorMapper.getByDishId(item.getId()));
+            result.add(vo);
+        }
+        return result;
     }
 }

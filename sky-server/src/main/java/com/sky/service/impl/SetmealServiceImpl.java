@@ -1,5 +1,6 @@
 package com.sky.service.impl;
 
+import com.sky.vo.DishItemVO;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
@@ -211,5 +212,20 @@ public class SetmealServiceImpl implements SetmealService {
                     .price(dish.getPrice()).copies(item.getCopies()).build());
         }
         return result;
+    }
+
+    // Day06 新增：此前套餐管理的方法完整保留。
+    @Override
+    public List<Setmeal> list(Setmeal setmeal) {
+        return setmealMapper.list(setmeal);
+    }
+
+    @Override
+    public List<DishItemVO> getDishItemById(Long id) {
+        Setmeal setmeal = requireSetmeal(id);
+        if (!StatusConstant.ENABLE.equals(setmeal.getStatus())) {
+            throw new BaseException("套餐已停售");
+        }
+        return setmealMapper.getDishItemBySetmealId(id);
     }
 }

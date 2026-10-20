@@ -51,4 +51,13 @@
             #{id}
         </foreach>
     </delete>
+    <!-- Day06 新增，原有 Day04 的 insert/update/delete/page SQL 保留。 -->
+    <select id="list" resultType="com.sky.entity.Setmeal">
+        select * from setmeal
+        <where>
+            <if test="categoryId != null">and category_id = #{categoryId}</if>
+            <if test="status != null">and status = #{status}</if>
+        </where>
+        order by create_time desc, id desc
+    </select>
 </mapper>
