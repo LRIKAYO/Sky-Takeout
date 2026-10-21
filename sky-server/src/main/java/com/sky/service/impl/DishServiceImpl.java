@@ -21,6 +21,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.sky.entity.Setmeal;
+import com.sky.mapper.SetmealMapper;
 
 import java.util.List;
 
@@ -35,6 +37,9 @@ public class DishServiceImpl implements DishService {
 
     @Autowired
     private SetmealDishMapper setmealDishMapper;
+
+    @Autowired
+    private SetmealMapper setmealMapper;
 
     @Override
     @Transactional
@@ -62,7 +67,7 @@ public class DishServiceImpl implements DishService {
         }
     }
 
-    @Override 
+    @Override
     public PageResult pageQuery(DishPageQueryDTO dishPageQueryDTO) {
         PageHelper.startPage(dishPageQueryDTO.getPage(), dishPageQueryDTO.getPageSize());
         Page<DishVO> page = dishMapper.pageQuery(dishPageQueryDTO);
@@ -149,7 +154,6 @@ public class DishServiceImpl implements DishService {
         return dishMapper.list(query);
     }
 
-    // Day06 新增：保留此前管理端的 list(Long categoryId)。
     @Override
     public List<DishVO> listWithFlavor(Dish dish) {
         List<DishVO> result = new ArrayList<>();
@@ -160,5 +164,27 @@ public class DishServiceImpl implements DishService {
             result.add(vo);
         }
         return result;
+    }
+
+    @Override
+    @Transactional
+    public void startOrStop(Integer status, Long id) {
+        if (!StatusConstant.ENABLE.equals(status)
+            && !StatusConstant.DISABLE.equals(status)) {
+            throw new BaseException("状态只能是 0 或 1");
+        }
+        if (id == null || id <= 0 || dishMapper.getById(id) == null) {
+            throw new BaseException("请提供存在的菜品 ID");
+        }
+
+        dishMapper.update(Dish.builder().id(id).status(status).build());
+
+        if (StatusConstant.DISABLE.equals(status)) {
+            List<Long> setmealIds = setmealDishMapper.getSetmealIdsByDishIds(List.of(id));
+            for (Long setmealId : setmealIds) {
+                setmealMapper.update(Setmeal.builder().id(setmealId)
+                    .status(StatusConstant.DISABLE).build());
+            }
+        }
     }
 }

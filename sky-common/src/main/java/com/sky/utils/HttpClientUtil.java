@@ -33,7 +33,7 @@ public class HttpClientUtil {
      * @param paramMap
      * @return
      */
-    public static String doGet(String url, Map<String, String> paramMap) {
+    public static String doGet(String url,Map<String,String> paramMap){
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             URIBuilder builder = new URIBuilder(url);
             if (paramMap != null) {

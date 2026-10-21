@@ -21,6 +21,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.cache.annotation.CacheEvict;
+import java.util.Set;
 
 import java.util.List;
 
@@ -33,11 +36,22 @@ public class DishController {
     @Autowired
     private DishService dishService;
 
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
+
+    private void cleanCache(String pattern) {
+        Set<String> keys = redisTemplate.keys(pattern);
+        if (keys != null && !keys.isEmpty()) {
+            redisTemplate.delete(keys);
+        }
+    }
+
     @PostMapping
     @ApiOperation("新增菜品")
     public Result<Void> save(@RequestBody DishDTO dishDTO) {
         log.info("新增菜品：{}", dishDTO);
         dishService.saveWithFlavor(dishDTO);
+        redisTemplate.delete("dish_" + dishDTO.getCategoryId());
         return Result.success();
     }
 
@@ -54,6 +68,7 @@ public class DishController {
     public Result<Void> delete(@RequestParam("ids") List<Long> ids) {
         log.info("菜品批量删除: {}", ids);
         dishService.deleteBatch(ids);
+        cleanCache("dish_*");
         return Result.success();
     }
 
@@ -69,6 +84,7 @@ public class DishController {
     public Result<Void> update(@RequestBody DishDTO dishDTO) {
         log.info("修改菜品：{}", dishDTO);
         dishService.updateWithFlavor(dishDTO);
+        cleanCache("dish_*");
         return Result.success();
     }
 
@@ -77,4 +93,15 @@ public class DishController {
     public Result<List<Dish>> list(@RequestParam("categoryId") Long categoryId) {
         return Result.success(dishService.list(categoryId));
     }
+
+    @PostMapping("/status/{status}")
+    @ApiOperation("菜品起售、 停售")
+    @CacheEvict(cacheNames = "setmealCache", allEntries = true)
+    public Result<Void> startOrStop(@PathVariable ("status") Integer status,
+                                    @RequestParam ("id") Long id) {
+        dishService.startOrStop(status, id);
+        cleanCache("dish_*");
+        return Result.success();
+    }
+
 }

@@ -9,6 +9,7 @@ import com.sky.vo.DishItemVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,11 +27,14 @@ public class SetmealController {
 
     @GetMapping("/list")
     @ApiOperation("按分类查询起售套餐")
+    @Cacheable(cacheNames = "setmealCache", key = "#p0",
+            condition = "#p0 != null && #p0 > 0")
     public Result<List<Setmeal>> list(@RequestParam("categoryId") Long categoryId) {
         if (categoryId <= 0) {
             throw new BaseException("请提供有效的套餐分类 ID");
         }
-        Setmeal query = Setmeal.builder().categoryId(categoryId).status(StatusConstant.ENABLE).build();
+        Setmeal query = Setmeal.builder().categoryId(categoryId)
+                .status(StatusConstant.ENABLE).build();
         return Result.success(setmealService.list(query));
     }
 

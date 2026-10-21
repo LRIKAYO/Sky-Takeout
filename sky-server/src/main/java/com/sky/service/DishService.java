@@ -21,6 +21,7 @@ public interface DishService {
 
     List<Dish> list(Long categoryId);
 
-    // Day06：用户端菜品列表需要同时返回口味。
     List<DishVO> listWithFlavor(Dish dish);
+
+    void startOrStop(Integer status, Long id);
 }
