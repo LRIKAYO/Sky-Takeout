@@ -136,7 +136,10 @@ public class OrderServiceImpl implements OrderService {
         requirePaymentConfig();
         try {
             JSONObject result = weChatPayUtil.pay(order.getNumber(), order.getAmount(), "苍穹外卖订单", user.getOpenid());
-            if (result == null || blank(result.getString("package")) || blank(result.getString("paySign"))) {
+            // 这里只生成小程序调起支付的参数，不能将订单提前改成已支付。
+            if (result == null || blank(result.getString("package")) || !result.getString("package").startsWith("prepay_id=") ||
+                    blank(result.getString("paySign")) || blank(result.getString("timeStamp")) ||
+                    blank(result.getString("nonceStr")) || !"RSA".equals(result.getString("signType"))) {
                 fail("微信预支付失败，请检查支付配置或查单后重试");
             }
             OrderPaymentVO vo = result.toJavaObject(OrderPaymentVO.class);
@@ -152,7 +155,8 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public void paySuccess(JSONObject transaction) {
-        if (transaction == null || !"SUCCESS".equals(transaction.getString("trade_state")) ||
+        if (blank(weChatProperties.getAppid()) || blank(weChatProperties.getMchid()) ||
+                transaction == null || !"SUCCESS".equals(transaction.getString("trade_state")) ||
                 !Objects.equals(weChatProperties.getAppid(), transaction.getString("appid")) ||
                 !Objects.equals(weChatProperties.getMchid(), transaction.getString("mchid")) ||
                 blank(transaction.getString("transaction_id")) || blank(transaction.getString("out_trade_no"))) {
@@ -206,6 +210,9 @@ public class OrderServiceImpl implements OrderService {
                 weChatProperties.getMchSerialNo(), weChatProperties.getPrivateKeyFilePath(),
                 weChatProperties.getWeChatPayCertFilePath(), weChatProperties.getApiV3Key(), weChatProperties.getNotifyUrl()}) {
             if (blank(value)) fail("尚未配置真实微信支付参数");
+        }
+        if (weChatProperties.getApiV3Key().getBytes(java.nio.charset.StandardCharsets.UTF_8).length != 32) {
+            fail("微信支付 API v3 密钥必须是32字节");
         }
     }
 

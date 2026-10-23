@@ -58,6 +58,14 @@ sky:
   wechat:
     appid: ${SKY_WECHAT_APPID:}
     secret: ${SKY_WECHAT_SECRET:}
+    # Day08 支付：只绑定环境变量，未配置时仍可启动和学习下单。
+    mchid: ${SKY_WECHAT_MCHID:}
+    mch-serial-no: ${SKY_WECHAT_MCH_SERIAL_NO:}
+    private-key-file-path: ${SKY_WECHAT_PRIVATE_KEY_FILE_PATH:}
+    api-v3-key: ${SKY_WECHAT_API_V3_KEY:}
+    we-chat-pay-cert-file-path: ${SKY_WECHAT_PAY_CERT_FILE_PATH:}
+    notify-url: ${SKY_WECHAT_NOTIFY_URL:}
+    refund-notify-url: ${SKY_WECHAT_REFUND_NOTIFY_URL:}
 
   upload:
     # 学习环境先使用本地存储；接回阿里云时设置 SKY_UPLOAD_MODE=oss
