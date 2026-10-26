@@ -24,4 +24,34 @@
         </where>
         order by order_time desc,id desc
     </select>
+
+<select id="sumByMap" resultType="java.math.BigDecimal">
+        select sum(amount) from orders
+        <where>
+            <if test="status != null">and status = #{status}</if>
+            <if test="begin != null">and order_time &gt;= #{begin}</if>
+            <if test="end != null">and order_time &lt; #{end}</if>
+        </where>
+    </select>
+
+    <select id="countByMap" resultType="java.lang.Integer">
+        select count(*) from orders
+        <where>
+            <if test="status != null">and status = #{status}</if>
+            <if test="begin != null">and order_time &gt;= #{begin}</if>
+            <if test="end != null">and order_time &lt; #{end}</if>
+        </where>
+    </select>
+
+    <select id="getSalesTop10" resultType="com.sky.dto.GoodsSalesDTO">
+        select od.name as name, sum(od.number) as number
+        from order_detail od
+        join orders o on od.order_id = o.id
+        where o.status = 5
+          and o.order_time &gt;= #{begin}
+          and o.order_time &lt; #{end}
+        group by od.name
+        order by number desc, od.name asc
+        limit 10
+    </select>
 </mapper>

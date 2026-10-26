@@ -4,8 +4,11 @@ import com.sky.entity.Orders;
 import com.sky.dto.OrdersPageQueryDTO;
 import com.github.pagehelper.Page;
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+import com.sky.dto.GoodsSalesDTO;
 import org.apache.ibatis.annotations.*;
-
 @Mapper
 public interface OrderMapper {
     void insert(Orders order);
@@ -52,4 +55,11 @@ public interface OrderMapper {
     @Update("update orders set status=5,delivery_time=coalesce(delivery_time,#{now}) " +
             "where status=4 and pay_status=1 and order_time < #{cutoff}")
     int completeDeliveryOrders(@Param("cutoff") LocalDateTime cutoff, @Param("now") LocalDateTime now);
+    
+    BigDecimal sumByMap(Map<String, Object> params);
+
+    Integer countByMap(Map<String, Object> params);
+
+    List<GoodsSalesDTO> getSalesTop10(@Param("begin") LocalDateTime begin,
+                                      @Param ("end") LocalDateTime end);
 }
