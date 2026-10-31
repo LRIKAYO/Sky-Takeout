@@ -22,7 +22,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doAnswer;
 
 /** Explicit integration check: run with -Dtest=DishDeletionTransactionIT. Uses only its own temporary rows. */
-@SpringBootTest(properties = "sky.upload.mode=local")
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = "sky.upload.mode=local")
 class DishDeletionTransactionIT {
 
     @Autowired

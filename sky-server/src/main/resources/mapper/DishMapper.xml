@@ -65,4 +65,11 @@
         </where>
         order by create_time desc, id desc
     </select>
+
+    <select id="countByMap" resultType="java.lang.Integer">
+        select count(*) from dish
+        <where>
+            <if test="status != null">and status = #{status}</if>
+        </where>
+    </select>
 </mapper>

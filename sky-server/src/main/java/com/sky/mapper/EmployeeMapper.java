@@ -8,6 +8,9 @@ import com.sky.enumeration.OperationType;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Update;
+import java.time.LocalDateTime;
 
 
 
@@ -39,6 +42,11 @@ public interface EmployeeMapper {
 
     @Select("select * from employee where id = #{id}")
     Employee getById(Long id);
+
+    @Update("update employee set password=#{newHash},update_time=#{now},update_user=#{id} " +
+            "where id=#{id} and password=#{oldHash} and status=1")
+    int changePassword(@Param("id") Long id, @Param("oldHash") String oldHash,
+                       @Param("newHash") String newHash, @Param("now") LocalDateTime now);
 
 
 }

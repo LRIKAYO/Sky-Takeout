@@ -39,4 +39,11 @@ public class UserController {
         return Result.success(UserLoginVO.builder()
                 .id(user.getId()).openid(user.getOpenid()).token(token).build());
     }
+
+    @PostMapping("/logout")
+    @ApiOperation("用户退出")
+    public Result<Void> logout() {
+        // 沿用员工退出的无状态 JWT 契约：客户端收到成功后清除本地令牌。
+        return Result.success();
+    }
 }

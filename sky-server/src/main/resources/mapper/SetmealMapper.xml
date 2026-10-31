@@ -51,7 +51,7 @@
             #{id}
         </foreach>
     </delete>
-    <!-- Day06 新增，原有 Day04 的 insert/update/delete/page SQL 保留。 -->
+
     <select id="list" resultType="com.sky.entity.Setmeal">
         select * from setmeal
         <where>
@@ -59,5 +59,12 @@
             <if test="status != null">and status = #{status}</if>
         </where>
         order by create_time desc, id desc
+    </select>
+
+    <select id="countByMap" resultType="java.lang.Integer">
+        select count(*) from setmeal
+        <where>
+            <if test="status != null">and status = #{status}</if>
+        </where>
     </select>
 </mapper>
